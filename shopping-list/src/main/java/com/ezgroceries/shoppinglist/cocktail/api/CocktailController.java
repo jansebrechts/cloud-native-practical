@@ -19,7 +19,7 @@ public class CocktailController {
         return ResponseEntity.ok(getDummyResources());
     }
 
-    private List<CocktailResource> getDummyResources() {
+    public static List<CocktailResource> getDummyResources() {
         return Arrays.asList(
                 new CocktailResource(
                         UUID.fromString("23b3d85a-3928-41c0-a533-6538a71e17c4"), "Margerita",
