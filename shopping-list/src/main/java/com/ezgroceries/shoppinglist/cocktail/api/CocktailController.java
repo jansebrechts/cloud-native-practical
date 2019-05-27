@@ -1,5 +1,9 @@
 package com.ezgroceries.shoppinglist.cocktail.api;
+import com.ezgroceries.shoppinglist.cocktail.model.CocktailDBClient;
+import com.ezgroceries.shoppinglist.cocktail.model.CocktailDBResponse;
 import com.ezgroceries.shoppinglist.cocktail.model.CocktailResource;
+import io.micrometer.core.instrument.util.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,14 +13,45 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping(value = "/cocktails", produces = "application/json")
 public class CocktailController {
 
+    private CocktailDBClient cocktailDBClient;
+
+    @Autowired
+    public void setCocktailDBClient(CocktailDBClient cocktailDBClient) {
+        this.cocktailDBClient = cocktailDBClient;
+    }
+
+
+    private List<CocktailResource> transform(CocktailDBResponse dbResponse) {
+        return dbResponse.getDrinks().stream()
+                .map(drinkResource -> new CocktailResource(
+                                UUID.randomUUID(),
+                                drinkResource.getStrDrink(),
+                                drinkResource.getStrGlass(),
+                                drinkResource.getStrInstructions(),
+                                drinkResource.getStrDrinkThumb(),
+                                Stream.of(
+                                        drinkResource.getStrIngredient1(),
+                                        drinkResource.getStrIngredient2(),
+                                        drinkResource.getStrIngredient3(),
+                                        drinkResource.getStrIngredient4(),
+                                        drinkResource.getStrIngredient5()
+                                ).filter(StringUtils::isNotBlank).collect(Collectors.toList())
+                        )
+                ).collect(Collectors.toList());
+
+    }
+
     @GetMapping
     public ResponseEntity<List<CocktailResource>>  get(@RequestParam String search) {
-        return ResponseEntity.ok(getDummyResources());
+        CocktailDBResponse cocktailDBResponse = cocktailDBClient.searchCocktails(search);
+        return ResponseEntity.ok(transform(cocktailDBResponse));
     }
 
     public static List<CocktailResource> getDummyResources() {
