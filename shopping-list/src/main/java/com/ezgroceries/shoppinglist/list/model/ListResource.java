@@ -1,37 +1,44 @@
 package com.ezgroceries.shoppinglist.list.model;
 
-import com.ezgroceries.shoppinglist.cocktail.model.CocktailResource;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class ListResource {
-    private final UUID shoppingListId;
-    private final String name;
-    private final List<String> ingredients;
+    private UUID shoppingListId;
+    private String name;
+    private List<String> ingredients;
 
-    public ListResource(UUID shoppingListId, String name, List<CocktailResource> cocktails) {
-        this.shoppingListId = shoppingListId;
+    public ListResource(UUID listId, String name) {
+        this.shoppingListId = listId;
         this.name = name;
-        ingredients = new ArrayList<String>();
-        addCocktails(cocktails);
     }
 
     public UUID getShoppingListId() {
         return shoppingListId;
     }
 
+    public void setShoppingListId(UUID shoppingListId) {
+        this.shoppingListId = shoppingListId;
+    }
+
     public String getName() {
         return name;
     }
 
-    public void addCocktails(List<CocktailResource> cocktails) {
-        this.ingredients.addAll(cocktails.stream()
-                .flatMap(el -> el.getIngredients().stream())
-                .distinct()
-                .collect(Collectors.toList()));
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setIngredients(List<String> ingredients) {
+        this.ingredients = ingredients;
+    }
+
+    public void addIngredient(String ingredient) {
+        if (ingredients == null) {
+            ingredients = new ArrayList<>();
+        }
+        ingredients.add(ingredient);
     }
 
     public List<String> getIngredients() {
